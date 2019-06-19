@@ -1,13 +1,83 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Curso ES6 RocketSeat</title>
+  <meta charset="UTF-8">
+  <title>Curso ES6 RocketSeat</title>
+
+  <style>
+
+    body {
+      width: 400px;
+      margin: 0 auto;
+      font-family: sans-serif;
+    }
+
+    form {
+      text-align: center;
+    }
+
+    h3 {
+      font-weight: 400;
+    }
+
+    input {
+      width: calc(100% - 100px);
+      font-size: 16px;
+      padding: 6px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    #loading {
+      margin: 15px 0 0;
+      display: block;
+    }
+
+    button {
+      padding: 7.5px 0;
+      width: 70px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      clear: both;
+      margin-top: 25px;
+    }
+
+    img {
+      float: left;
+      margin-right: 10px;
+      width: 80px;
+    }
+
+    strong {
+      font-size: 20px;
+    }
+
+    p {
+      margin: 5px 0;
+    }
+
+  </style>
 </head>
+
 <body>
-    <!-- AULA 1 -->
-    <button id="novotodo">Adicionar</button>
-    <!-- AULA 1 -->
-    <script src="./bundle.js"></script>
+  <form id="repo-form">
+    <h3>SEARCH FOR A REPOSITORY</h3>
+    <input type="text" name="repository">
+    <button type="submit" id="btnSubmit">SEARCH</button>
+  </form>
+
+  <ul id="repo-list"></ul>
+
+  <script src="./bundle.js"></script>
 </body>
 </html>

@@ -1,197 +1,95 @@
-// MANEIRAS DE IMPORT
+import api from './api';
 
-// import { soma, sub } from './functions';
+class App {
+  constructor() {
+    this.repositories = [];
 
-// console.log(soma(1, 5));
-// console.log(sub(1, 5));
+    this.formEl = document.getElementById('repo-form'); 
+    this.inputEl = document.querySelector('input[name=repository]');
+    this.listEl = document.getElementById('repo-list');
+    this.btnEl = document.getElementById('btnSubmit');
 
-// ============================================================
+    this.registerHandlers();
+  }  
 
-// import soma from './soma'; //
+  registerHandlers() {
+    this.formEl.onsubmit = event => this.addRepository(event);
+  }
 
-// console.log(soma(1, 5));
+  setLoading(loading = true) {
+    if (loading === true) {
+      let loadingEl = document.createElement('span');
+      loadingEl.appendChild(document.createTextNode('Carregando'));
+      loadingEl.setAttribute('id', 'loading');
 
-// ============================================================
+      this.formEl.appendChild(loadingEl);
+      this.btnEl.setAttribute('disabled', true);
 
-// =============== EXERCICIOS ===============
-
-// 1.1 E 1.2
-// import * as functions from './functions';
-
-// console.log(functions.soma(1, 5));
-
-// import ClasseUsuario from './functions';
-// import { idade } from './functions';
-
-// ClasseUsuario.info();
-
-// console.log(idade);
-
-// 1.3
-import Usuario, { idade as IdadeUsuario } from './functions';
-
-console.log(IdadeUsuario);
-Usuario.info();
-
-// ============================================================
-
-const minhaPromise = () => new Promise((resolve, reject) => {
-  console.log('Começou')
-  setTimeout(() => {
-    resolve('Terminou')
-  }, 2000);
-})
-
-// minhaPromise()
-//   .then(response => {
-//     console.log(response);
-//   })
-//   .catch(error => {
-//     console.log(error);
-//   })
-
-// async function executaPromise() {
-//   console.log(await minhaPromise());
-//   console.log(await minhaPromise());
-//   console.log(await minhaPromise());
-// }
-
-const executaPromise = async () => {
-  console.log(await minhaPromise());
-  console.log(await minhaPromise());
-  console.log(await minhaPromise());
-}
-
-executaPromise();
-
-import axios from 'axios';
-
-class Api {
-  static async getUserInfo(username) {
-    try {
-      const response = await axios.get(`https://api.github.com/users/${username}`);
-      console.log('response:', response);
-      
-    } catch (error) {
-      console.warn(error);      
+    } else {
+      document.getElementById('loading').remove();
+      this.btnEl.removeAttribute('disabled');
     }
   }
-}
 
-Api.getUserInfo('bruno-azzi');
+  async addRepository(event) {
+    event.preventDefault();
 
-// ============================================================
+    const repoInput = this.inputEl.value;
 
-// EXERCICIOS ASYNC AWAIT
-
-// =========================== EX 1 ===========================
-
-// Funcão delay aciona o .then após 1s
-const delay = () => new Promise(resolve => setTimeout(resolve, 1000));
-
-// function umPorSegundo() {
-//   delay().then(() => {
-//     console.log('1s');
-//     delay().then(() => {
-//       console.log('2s');
-//       delay().then(() => {
-//         console.log('3s');
-//       });
-//     })
-//   });
-// }
-
-const umPorSegundo = async () => {
-  await delay();
-  console.log('1s');
-
-  await delay();
-  console.log('2s');
-
-  await delay();
-  console.log('3s');
-}
-
-umPorSegundo();
-
-// =========================== END EX 1 ===========================
-
-
-// =========================== EX 2 ===========================
-
-async function getUserFromGithub(user) {
-  // axios.get(`https://api.github.com/users/${user}`)
-  //   .then(response => {
-  //     console.log(response.data);
-  //   })
-  //   .catch(err => {
-  //     console.log('Usuário não existe');
-  //   })
-
-  try {
-    const response = await axios.get(`https://api.github.com/users/${user}`);
-    console.log('resposta', response);
-  } catch (error) {
-    console.log('Usuário não existe');
-  }
-}
-
-getUserFromGithub('diego3g');
-getUserFromGithub('diego3g124123');
-
-// =========================== END EX 2 ===========================
-
-
-// =========================== EX 3 ===========================
-
-class Github {
-  // static getRepositories(repo) {
-  //   axios.get(`https://api.github.com/repos/${repo}`)
-  //     .then(response => {
-  //       console.log(response.data);
-  //     })
-  //     .catch(err => {
-  //       console.log('Repositório não existe');
-  //     })
-  // }
-
-  static async getRepositories(repo) {
-    try {
-      const response = await axios.get(`https://api.github.com/repos/${repo}`);
-      console.log('getRepositories:', response);
-    } catch (error) {
-      console.log('Repositório não existe');
+    if (repoInput.length === 0) {
+      return;
     }
+
+    this.setLoading();
+
+    try {
+      const response = await api.get(`/repos/${repoInput}`);
+      const { name, description, html_url, owner: { avatar_url } } = response.data;
+
+      this.repositories.push({
+        name,
+        description,
+        avatar_url,
+        html_url
+      });
+
+      this.inputEl.value = '';
+      this.render();
+
+    } catch (error) {
+      alert('O repositório não existe');
+    }
+
+    this.setLoading(false);
+  }
+
+  render() {
+    this.listEl.innerHTML = '';
+
+    this.repositories.forEach(repo => {
+      let imgEl = document.createElement('img');
+      imgEl.setAttribute('src', repo.avatar_url);
+
+      let titleEl = document.createElement('strong');
+      titleEl.appendChild(document.createTextNode(repo.name));
+
+      let descriptionEl = document.createElement('p');
+      descriptionEl.appendChild(document.createTextNode(repo.description));
+
+      let linkEl = document.createElement('a');
+      linkEl.setAttribute('target', '_blank');
+      linkEl.setAttribute('href', repo.html_url);
+      linkEl.appendChild(document.createTextNode('Acessar'));
+
+      let listItemEl = document.createElement('li');
+      listItemEl.appendChild(imgEl);
+      listItemEl.appendChild(titleEl);
+      listItemEl.appendChild(descriptionEl);
+      listItemEl.appendChild(linkEl);
+
+      this.listEl.appendChild(listItemEl);
+    })
   }
 }
 
-Github.getRepositories('rocketseat/rocketseat.com.br');
-Github.getRepositories('rocketseat/dslkvmskv');
-
-// =========================== END EX 3 ===========================
-
-
-// =========================== EX 4 ===========================
-
-// const buscaUsuario = usuario => {
-//   axios.get(`https://api.github.com/users/${user}`)
-//     .then(response => {
-//       console.log(response.data);
-//     })
-//     .catch(err => {
-//       console.log('Usuário não existe');
-//     });
-// }
-
-const buscaUsuario = async usuario => {
-  try {
-    const response = await axios.get(`https://api.github.com/users/${usuario}`);
-    console.log('resposta', response);
-  } catch (error) {
-    console.log('Usuário não existe');
-  }
-}
-
-buscaUsuario('dasdasdasdas');
-
-// =========================== END EX 4 ===========================
+new App();
